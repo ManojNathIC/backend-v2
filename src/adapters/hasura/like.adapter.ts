@@ -5,6 +5,7 @@ import { LikeDto } from "src/like/dto/like.dto";
 import { LikeSearchDto } from "src/like/dto/like-search.dto";
 import { IServicelocator } from "../likeservicelocator";
 import jwt_decode from "jwt-decode";
+import { ErrorResponse } from "src/error-response";
 export const HasuraLikeToken = "HasuraLike";
 @Injectable()
 export class HasuraLikeService implements IServicelocator {
@@ -72,13 +73,21 @@ export class HasuraLikeService implements IServicelocator {
     };
 
     const response = await axios(config);
-    const result = response.data.data.insert_like_one;
 
-    return new SuccessResponse({
-      statusCode: 200,
-      message: "Ok.",
-      data: result,
-    });
+    if (response?.data?.errors) {
+      return new ErrorResponse({
+        errorCode: response.data.errors[0].extensions,
+        errorMessage: response.data.errors[0].message,
+      });
+    } else {
+      const result = response.data.data.insert_like_one;
+
+      return new SuccessResponse({
+        statusCode: response.status,
+        message: "Ok.",
+        data: result,
+      });
+    }
   }
 
   public async updateLike(id: string, request: any, likeDto: LikeDto) {
@@ -141,13 +150,20 @@ export class HasuraLikeService implements IServicelocator {
     };
 
     const response = await axios(config);
-    const result = response.data.data;
 
-    return new SuccessResponse({
-      statusCode: 200,
-      message: "Ok.",
-      data: result,
-    });
+    if (response?.data?.errors) {
+      return new ErrorResponse({
+        errorCode: response.data.errors[0].extensions,
+        errorMessage: response.data.errors[0].message,
+      });
+    } else {
+      const result = response.data.data;
+      return new SuccessResponse({
+        statusCode: response.status,
+        message: "Ok.",
+        data: result,
+      });
+    }
   }
 
   public async getLike(likeId: any, request: any) {
@@ -180,13 +196,21 @@ export class HasuraLikeService implements IServicelocator {
     };
 
     const response = await axios(config);
-    let result = [response.data.data.like_by_pk];
-    const likeDto = await this.mappedResponse(result);
-    return new SuccessResponse({
-      statusCode: 200,
-      message: "Ok.",
-      data: likeDto[0],
-    });
+
+    if (response?.data?.errors) {
+      return new ErrorResponse({
+        errorCode: response.data.errors[0].extensions,
+        errorMessage: response.data.errors[0].message,
+      });
+    } else {
+      let result = [response.data.data.like_by_pk];
+      const likeDto = await this.mappedResponse(result);
+      return new SuccessResponse({
+        statusCode: response.status,
+        message: "Ok.",
+        data: likeDto,
+      });
+    }
   }
 
   public async searchLike(request: any, likeSearchDto: LikeSearchDto) {
@@ -237,14 +261,20 @@ export class HasuraLikeService implements IServicelocator {
 
     const response = await axios(config);
 
-    let result = response.data.data.like;
-    const likeDto = await this.mappedResponse(result);
-
-    return new SuccessResponse({
-      statusCode: 200,
-      message: "Ok.",
-      data: likeDto,
-    });
+    if (response?.data?.errors) {
+      return new ErrorResponse({
+        errorCode: response.data.errors[0].extensions,
+        errorMessage: response.data.errors[0].message,
+      });
+    } else {
+      let result = response.data.data.like;
+      const likeDto = await this.mappedResponse(result);
+      return new SuccessResponse({
+        statusCode: response.status,
+        message: "Ok.",
+        data: likeDto,
+      });
+    }
   }
   public async getCountLike(contextId: string, context: string, request: any) {
     var axios = require("axios");
@@ -277,14 +307,21 @@ export class HasuraLikeService implements IServicelocator {
     };
 
     const response = await axios(config);
-    let result = response.data.data.like;
-    const likeDto = await this.mappedResponse(result);
 
-    return new SuccessResponse({
-      statusCode: 200,
-      message: "Ok.",
-      data: likeDto.length,
-    });
+    if (response?.data?.errors) {
+      return new ErrorResponse({
+        errorCode: response.data.errors[0].extensions,
+        errorMessage: response.data.errors[0].message,
+      });
+    } else {
+      let result = response.data.data.like;
+      const likeDto = await this.mappedResponse(result);
+      return new SuccessResponse({
+        statusCode: response.status,
+        message: "Ok.",
+        data: likeDto,
+      });
+    }
   }
 
   public async deleteLike(likeId: string, request: any) {
@@ -310,13 +347,20 @@ export class HasuraLikeService implements IServicelocator {
     };
 
     const response = await axios(config);
-    const result = response.data.data;
 
-    return new SuccessResponse({
-      statusCode: 200,
-      message: "Ok.",
-      data: result,
-    });
+    if (response?.data?.errors) {
+      return new ErrorResponse({
+        errorCode: response.data.errors[0].extensions,
+        errorMessage: response.data.errors[0].message,
+      });
+    } else {
+      const result = response.data.data;
+      return new SuccessResponse({
+        statusCode: response.status,
+        message: "Ok.",
+        data: result,
+      });
+    }
   }
 
   public async mappedResponse(result: any) {

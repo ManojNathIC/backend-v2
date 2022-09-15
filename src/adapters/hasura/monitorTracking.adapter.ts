@@ -2,6 +2,7 @@ import { HttpService } from "@nestjs/axios";
 import { Injectable } from "@nestjs/common";
 import { SuccessResponse } from "src/success-response";
 import { MonitorTrackingDto } from "src/monitorTracking/dto/monitorTracking.dto";
+import { ErrorResponse } from "src/error-response";
 @Injectable()
 export class MonitorTrackingService {
   constructor(private httpService: HttpService) {}
@@ -39,12 +40,21 @@ export class MonitorTrackingService {
 
     const response = await axios(config);
 
-    let result = await this.mappedResponse(response.data.data.monitortracking);
-    return new SuccessResponse({
-      statusCode: 200,
-      message: "Ok.",
-      data: result,
-    });
+    if (response?.data?.errors) {
+      return new ErrorResponse({
+        errorCode: response.data.errors[0].extensions,
+        errorMessage: response.data.errors[0].message,
+      });
+    } else {
+      let result = await this.mappedResponse(
+        response.data.data.monitortracking
+      );
+      return new SuccessResponse({
+        statusCode: response.status,
+        message: "Ok.",
+        data: result,
+      });
+    }
   }
 
   public async createMonitorTracking(
@@ -79,12 +89,20 @@ export class MonitorTrackingService {
     };
 
     const response = await axios(config);
-    const result = response.data.data.insert_monitortracking_one;
-    return new SuccessResponse({
-      statusCode: 200,
-      message: "Ok.",
-      data: result,
-    });
+
+    if (response?.data?.errors) {
+      return new ErrorResponse({
+        errorCode: response.data.errors[0].extensions,
+        errorMessage: response.data.errors[0].message,
+      });
+    } else {
+      const result = response.data.data.insert_monitortracking_one;
+      return new SuccessResponse({
+        statusCode: response.status,
+        message: "Ok.",
+        data: result,
+      });
+    }
   }
 
   public async updateMonitorTracking(
@@ -124,12 +142,19 @@ export class MonitorTrackingService {
 
     const response = await axios(config);
 
-    const result = response.data.data;
-    return new SuccessResponse({
-      statusCode: 200,
-      message: "Ok.",
-      data: result,
-    });
+    if (response?.data?.errors) {
+      return new ErrorResponse({
+        errorCode: response.data.errors[0].extensions,
+        errorMessage: response.data.errors[0].message,
+      });
+    } else {
+      const result = response.data.data;
+      return new SuccessResponse({
+        statusCode: response.status,
+        message: "Ok.",
+        data: result,
+      });
+    }
   }
 
   public async searchMonitorTracking(
@@ -196,12 +221,21 @@ export class MonitorTrackingService {
 
     const response = await axios(config);
 
-    let result = await this.mappedResponse(response.data.data.monitortracking);
-    return new SuccessResponse({
-      statusCode: 200,
-      message: "Ok.",
-      data: result,
-    });
+    if (response?.data?.errors) {
+      return new ErrorResponse({
+        errorCode: response.data.errors[0].extensions,
+        errorMessage: response.data.errors[0].message,
+      });
+    } else {
+      let result = await this.mappedResponse(
+        response.data.data.monitortracking
+      );
+      return new SuccessResponse({
+        statusCode: response.status,
+        message: "Ok.",
+        data: result,
+      });
+    }
   }
 
   public async mappedResponse(result: any) {

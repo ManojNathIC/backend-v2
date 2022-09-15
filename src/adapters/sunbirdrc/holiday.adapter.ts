@@ -71,23 +71,29 @@ export class SunbirdHolidayService implements IServicelocator {
     request: any,
     holidayDto: HolidayDto
   ) {
-    var axios = require("axios");
-    var data = holidayDto;
-
-    var config = {
-      method: "put",
-      url: `${this.url}/${holidayId}`,
-      headers: {
-        Authorization: request.headers.authorization,
-      },
-      data: data,
-    };
-    const response = await axios(config);
-    return new SuccessResponse({
-      statusCode: 200,
-      message: " Ok.",
-      data: response.data,
-    });
+    return this.httpService
+      .put(`${this.url}/${holidayId}`, holidayDto, {
+        headers: {
+          Authorization: request.headers.authorization,
+        },
+      })
+      .pipe(
+        map((response) => {
+          const responsedata = response.data;
+          return new SuccessResponse({
+            statusCode: response.status,
+            message: "Ok",
+            data: responsedata,
+          });
+        }),
+        catchError((e) => {
+          var error = new ErrorResponse({
+            errorCode: e.response.status,
+            errorMessage: e.response.data.params.errmsg,
+          });
+          throw new HttpException(error, e.response.status);
+        })
+      );
   }
 
   public async searchHoliday(request: any, holidaySearchDto: HolidaySearchDto) {

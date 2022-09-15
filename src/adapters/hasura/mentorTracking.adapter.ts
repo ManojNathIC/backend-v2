@@ -2,6 +2,7 @@ import { HttpService } from "@nestjs/axios";
 import { Injectable } from "@nestjs/common";
 import { SuccessResponse } from "src/success-response";
 import { MentorTrackingDto } from "src/mentorTracking/dto/mentorTracking.dto";
+import { ErrorResponse } from "src/error-response";
 @Injectable()
 export class MentorTrackingService {
   constructor(private httpService: HttpService) {}
@@ -40,13 +41,19 @@ export class MentorTrackingService {
 
     const response = await axios(config);
 
-    let result = await this.mappedResponse(response.data.data.mentortracking);
-
-    return new SuccessResponse({
-      statusCode: 200,
-      message: "Ok.",
-      data: result,
-    });
+    if (response?.data?.errors) {
+      return new ErrorResponse({
+        errorCode: response.data.errors[0].extensions,
+        errorMessage: response.data.errors[0].message,
+      });
+    } else {
+      let result = await this.mappedResponse(response.data.data.mentortracking);
+      return new SuccessResponse({
+        statusCode: response.status,
+        message: "Ok.",
+        data: result,
+      });
+    }
   }
 
   public async createMentorTracking(
@@ -81,12 +88,20 @@ export class MentorTrackingService {
     };
 
     const response = await axios(config);
-    const result = response.data.data.insert_mentortracking_one;
-    return new SuccessResponse({
-      statusCode: 200,
-      message: "Ok.",
-      data: result,
-    });
+
+    if (response?.data?.errors) {
+      return new ErrorResponse({
+        errorCode: response.data.errors[0].extensions,
+        errorMessage: response.data.errors[0].message,
+      });
+    } else {
+      const result = response.data.data.insert_mentortracking_one;
+      return new SuccessResponse({
+        statusCode: response.status,
+        message: "Ok.",
+        data: result,
+      });
+    }
   }
 
   public async updateMentorTracking(
@@ -124,12 +139,20 @@ export class MentorTrackingService {
     };
 
     const response = await axios(config);
-    const result = response.data.data;
-    return new SuccessResponse({
-      statusCode: 200,
-      message: "Ok.",
-      data: result,
-    });
+
+    if (response?.data?.errors) {
+      return new ErrorResponse({
+        errorCode: response.data.errors[0].extensions,
+        errorMessage: response.data.errors[0].message,
+      });
+    } else {
+      const result = response.data.data;
+      return new SuccessResponse({
+        statusCode: response.status,
+        message: "Ok.",
+        data: result,
+      });
+    }
   }
 
   public async searchMentorTracking(
@@ -200,13 +223,19 @@ export class MentorTrackingService {
 
     const response = await axios(config);
 
-    let result = await this.mappedResponse(response.data.data.mentortracking);
-
-    return new SuccessResponse({
-      statusCode: 200,
-      message: "Ok.",
-      data: result,
-    });
+    if (response?.data?.errors) {
+      return new ErrorResponse({
+        errorCode: response.data.errors[0].extensions,
+        errorMessage: response.data.errors[0].message,
+      });
+    } else {
+      let result = await this.mappedResponse(response.data.data.mentortracking);
+      return new SuccessResponse({
+        statusCode: response.status,
+        message: "Ok.",
+        data: result,
+      });
+    }
   }
 
   public async mappedResponse(result: any) {

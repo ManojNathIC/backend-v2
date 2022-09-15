@@ -59,14 +59,21 @@ export class AttendanceHasuraService implements IServicelocator {
     };
 
     const response = await axios(config);
-    let result = response?.data?.data?.attendance;
-    const mappedResponse = await this.mappedResponse(result);
+    if (response?.data?.errors) {
+      return new ErrorResponse({
+        errorCode: response.data.errors[0].extensions,
+        errorMessage: response.data.errors[0].message,
+      });
+    } else {
+      let result = response?.data?.data?.attendance;
+      const mappedResponse = await this.mappedResponse(result);
 
-    return new SuccessResponse({
-      statusCode: 200,
-      message: "Ok.",
-      data: mappedResponse[0],
-    });
+      return new SuccessResponse({
+        statusCode: 200,
+        message: "Ok.",
+        data: mappedResponse[0],
+      });
+    }
   }
 
   public async updateAttendance(
@@ -110,13 +117,20 @@ export class AttendanceHasuraService implements IServicelocator {
     };
 
     const response = await axios(config);
-    const result = response.data.data;
 
-    return new SuccessResponse({
-      statusCode: 200,
-      message: "Ok.",
-      data: result,
-    });
+    if (response?.data?.errors) {
+      return new ErrorResponse({
+        errorCode: response.data.errors[0].extensions,
+        errorMessage: response.data.errors[0].message,
+      });
+    } else {
+      const result = response.data.data;
+      return new SuccessResponse({
+        statusCode: response.status,
+        message: "Ok.",
+        data: result,
+      });
+    }
   }
 
   public async searchAttendance(
@@ -179,15 +193,20 @@ export class AttendanceHasuraService implements IServicelocator {
     };
 
     const response = await axios(config);
-    let result = response?.data?.data?.attendance;
-
-    const mappedResponse = await this.mappedResponse(result);
-
-    return new SuccessResponse({
-      statusCode: 200,
-      message: "Ok.",
-      data: mappedResponse,
-    });
+    if (response?.data?.errors) {
+      return new ErrorResponse({
+        errorCode: response.data.errors[0].extensions,
+        errorMessage: response.data.errors[0].message,
+      });
+    } else {
+      let result = response?.data?.data?.attendance;
+      const mappedResponse = await this.mappedResponse(result);
+      return new SuccessResponse({
+        statusCode: response.status,
+        message: "Ok.",
+        data: mappedResponse,
+      });
+    }
   }
 
   public async userSegment(
@@ -285,23 +304,23 @@ export class AttendanceHasuraService implements IServicelocator {
         break;
     }
 
-    let newDataObject = "";
+    let query = "";
     if (data.fromDate && data.toDate) {
-      newDataObject += `attendanceDate:{_gte: "${data.fromDate}"}, _and: {attendanceDate: {_lte: "${data.toDate}"}} `;
+      query += `attendanceDate:{_gte: "${data.fromDate}"}, _and: {attendanceDate: {_lte: "${data.toDate}"}} `;
     }
     const objectKeys = Object.keys(data);
     objectKeys.forEach((e, index) => {
       if (data[e] && data[e] != "" && !["fromDate", "toDate"].includes(e)) {
-        newDataObject += `${e}:{_eq:"${data[e]}"}`;
+        query += `${e}:{_eq:"${data[e]}"}`;
         if (index !== objectKeys.length - 1) {
-          newDataObject += " ";
+          query += " ";
         }
       }
     });
 
     var FilterData = {
       query: `query AttendanceFilter {
-            attendance(where:{ ${newDataObject}}) {
+            attendance(where:{ ${query}}) {
               attendance
               attendanceDate
               attendanceId
@@ -468,22 +487,27 @@ export class AttendanceHasuraService implements IServicelocator {
     };
 
     const response = await axios(config);
+    if (response?.data?.errors) {
+      return new ErrorResponse({
+        errorCode: response.data.errors[0].extensions,
+        errorMessage: response.data.errors[0].message,
+      });
+    } else {
+      let result =
+        response?.data.data.attendance && response.data.data.attendance;
 
-    let result =
-      response?.data.data.attendance && response.data.data.attendance;
+      const mappedResponse = await this.mappedResponse(result);
 
-    const mappedResponse = await this.mappedResponse(result);
-
-    return new SuccessResponse({
-      statusCode: 200,
-      message: "ok",
-      data: mappedResponse,
-    });
+      return new SuccessResponse({
+        statusCode: 200,
+        message: "ok",
+        data: mappedResponse,
+      });
+    }
   }
 
   public async createAttendance(request: any, attendanceDto: AttendanceDto) {
     let axios = require("axios");
-    // const attendanceSchema = new AttendanceDto(attendanceDto);
 
     let query = "";
     Object.keys(attendanceDto).forEach((e) => {
@@ -582,13 +606,19 @@ export class AttendanceHasuraService implements IServicelocator {
 
       const response = await axios(config);
 
-      const result = response.data.data.insert_attendance_one;
-
-      return new SuccessResponse({
-        statusCode: 200,
-        message: "Ok.",
-        data: result,
-      });
+      if (response?.data?.errors) {
+        return new ErrorResponse({
+          errorCode: response.data.errors[0].extensions,
+          errorMessage: response.data.errors[0].message,
+        });
+      } else {
+        const result = response.data.data.insert_attendance_one;
+        return new SuccessResponse({
+          statusCode: response.status,
+          message: "ok",
+          data: result,
+        });
+      }
     }
   }
   public async multipleAttendance(request: any, attendanceData: [Object]) {
@@ -629,16 +659,16 @@ export class AttendanceHasuraService implements IServicelocator {
           : "";
 
         let attendanceDto = data;
-        let dataObject = "";
-        const newDataObj = Object.keys(attendanceDto).forEach((e) => {
+        let query = "";
+        Object.keys(attendanceDto).forEach((e) => {
           if (attendanceDto[e] && attendanceDto[e] != "") {
-            dataObject += `${e}:{_eq:"${attendanceDto[e]}"}`;
+            query += `${e}:{_eq:"${attendanceDto[e]}"}`;
           }
         });
 
         var search = {
           query: `query SearchAttendance {
-            attendance(where:{ ${dataObject}}) {
+            attendance(where:{ ${query}}) {
               attendanceId
             }
           }`,

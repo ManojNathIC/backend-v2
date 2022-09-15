@@ -4,6 +4,7 @@ import { SuccessResponse } from "src/success-response";
 import { SchoolDto } from "src/school/dto/school.dto";
 import { SchoolSearchDto } from "src/school/dto/school-search.dto";
 import { IServicelocator } from "../schoolservicelocator";
+import { ErrorResponse } from "src/error-response";
 export const HasuraSchoolToken = "HasuraSchool";
 @Injectable()
 export class SchoolHasuraService implements IServicelocator {
@@ -49,13 +50,19 @@ export class SchoolHasuraService implements IServicelocator {
 
     const response = await axios(config);
 
-    const result = response.data.data.insert_school_one;
-
-    return new SuccessResponse({
-      statusCode: 200,
-      message: "Ok.",
-      data: result,
-    });
+    if (response?.data?.errors) {
+      return new ErrorResponse({
+        errorCode: response.data.errors[0].extensions,
+        errorMessage: response.data.errors[0].message,
+      });
+    } else {
+      const result = response.data.data.insert_school_one;
+      return new SuccessResponse({
+        statusCode: response.status,
+        message: "Ok.",
+        data: result,
+      });
+    }
   }
 
   public async updateSchool(id: string, request: any, schoolDto: SchoolDto) {
@@ -97,13 +104,20 @@ export class SchoolHasuraService implements IServicelocator {
     };
 
     const response = await axios(config);
-    const result = response.data.data;
 
-    return new SuccessResponse({
-      statusCode: 200,
-      message: "Ok.",
-      data: result,
-    });
+    if (response?.data?.errors) {
+      return new ErrorResponse({
+        errorCode: response.data.errors[0].extensions,
+        errorMessage: response.data.errors[0].message,
+      });
+    } else {
+      const result = response.data.data;
+      return new SuccessResponse({
+        statusCode: response.status,
+        message: "Ok.",
+        data: result,
+      });
+    }
   }
 
   public async getSchool(schoolId: any, request: any) {
@@ -156,14 +170,22 @@ export class SchoolHasuraService implements IServicelocator {
 
     const response = await axios(config);
 
-    let result = [response.data.data.school_by_pk];
-    const schoolDto = await this.mappedResponse(result);
-    return new SuccessResponse({
-      statusCode: 200,
-      message: "Ok.",
-      data: schoolDto[0],
-    });
+    if (response?.data?.errors) {
+      return new ErrorResponse({
+        errorCode: response.data.errors[0].extensions,
+        errorMessage: response.data.errors[0].message,
+      });
+    } else {
+      let result = [response.data.data.school_by_pk];
+      const schoolDto = await this.mappedResponse(result);
+      return new SuccessResponse({
+        statusCode: response.status,
+        message: "Ok.",
+        data: schoolDto[0],
+      });
+    }
   }
+
   public async searchSchool(request: any, schoolSearchDto: SchoolSearchDto) {
     var axios = require("axios");
 
@@ -228,13 +250,20 @@ export class SchoolHasuraService implements IServicelocator {
 
     const response = await axios(config);
 
-    let result = response.data.data.school;
-    const schoolDto = await this.mappedResponse(result);
-    return new SuccessResponse({
-      statusCode: 200,
-      message: "Ok.",
-      data: schoolDto,
-    });
+    if (response?.data?.errors) {
+      return new ErrorResponse({
+        errorCode: response.data.errors[0].extensions,
+        errorMessage: response.data.errors[0].message,
+      });
+    } else {
+      let result = response.data.data.school;
+      const schoolDto = await this.mappedResponse(result);
+      return new SuccessResponse({
+        statusCode: response.status,
+        message: "Ok.",
+        data: schoolDto,
+      });
+    }
   }
   public async mappedResponse(result: any) {
     const schoolResponse = result.map((item: any) => {

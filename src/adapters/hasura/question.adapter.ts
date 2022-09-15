@@ -3,6 +3,7 @@ import { Injectable } from "@nestjs/common";
 import { SuccessResponse } from "src/success-response";
 import { QuestionDto } from "src/Question/dto/question.dto";
 import { IServicelocator } from "../questionservicelocator";
+import { ErrorResponse } from "src/error-response";
 export const HasuraQuestionToken = "HasuraQuestion";
 @Injectable()
 export class QuestionService implements IServicelocator {
@@ -75,14 +76,20 @@ export class QuestionService implements IServicelocator {
 
     const response = await axios(config);
 
-    let result = [response.data.data.question_by_pk];
-    const questionResponse = await this.mappedResponse(result);
-
-    return new SuccessResponse({
-      statusCode: 200,
-      message: "Ok.",
-      data: questionResponse[0],
-    });
+    if (response?.data?.errors) {
+      return new ErrorResponse({
+        errorCode: response.data.errors[0].extensions,
+        errorMessage: response.data.errors[0].message,
+      });
+    } else {
+      let result = [response.data.data.question_by_pk];
+      const questionResponse = await this.mappedResponse(result);
+      return new SuccessResponse({
+        statusCode: response.status,
+        message: "Ok.",
+        data: questionResponse,
+      });
+    }
   }
   public async createQuestion(request: any, questionDto: QuestionDto) {
     var axios = require("axios");
@@ -119,13 +126,20 @@ export class QuestionService implements IServicelocator {
 
     const response = await axios(config);
 
-    const result = response.data.data.insert_question_one;
+    if (response?.data?.errors) {
+      return new ErrorResponse({
+        errorCode: response.data.errors[0].extensions,
+        errorMessage: response.data.errors[0].message,
+      });
+    } else {
+      const result = response.data.data.insert_question_one;
 
-    return new SuccessResponse({
-      statusCode: 200,
-      message: "Ok.",
-      data: result,
-    });
+      return new SuccessResponse({
+        statusCode: response.status,
+        message: "Ok.",
+        data: result,
+      });
+    }
   }
 
   public async updateQuestion(
@@ -169,13 +183,19 @@ export class QuestionService implements IServicelocator {
 
     const response = await axios(config);
 
-    const result = response.data.data;
-
-    return new SuccessResponse({
-      statusCode: 200,
-      message: "Ok.",
-      data: result,
-    });
+    if (response?.data?.errors) {
+      return new ErrorResponse({
+        errorCode: response.data.errors[0].extensions,
+        errorMessage: response.data.errors[0].message,
+      });
+    } else {
+      const result = response.data.data;
+      return new SuccessResponse({
+        statusCode: response.status,
+        message: "Ok.",
+        data: result,
+      });
+    }
   }
 
   public async filterQuestion(
@@ -281,13 +301,20 @@ export class QuestionService implements IServicelocator {
 
     const response = await axios(config);
 
-    let result = response.data.data.question;
-    const questionResponse = await this.mappedResponse(result);
-    return new SuccessResponse({
-      statusCode: 200,
-      message: "Ok.",
-      data: questionResponse,
-    });
+    if (response?.data?.errors) {
+      return new ErrorResponse({
+        errorCode: response.data.errors[0].extensions,
+        errorMessage: response.data.errors[0].message,
+      });
+    } else {
+      let result = response.data.data.question;
+      const questionResponse = await this.mappedResponse(result);
+      return new SuccessResponse({
+        statusCode: response.status,
+        message: "Ok.",
+        data: questionResponse,
+      });
+    }
   }
 
   public async bulkImport(request: any, questionDto: [Object]) {

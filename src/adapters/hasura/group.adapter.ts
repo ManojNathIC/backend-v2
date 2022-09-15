@@ -8,6 +8,7 @@ import { GroupSearchDto } from "src/group/dto/group-search.dto";
 import { IServicelocatorgroup } from "../groupservicelocator";
 import { UserDto } from "src/user/dto/user.dto";
 import { StudentDto } from "src/student/dto/student.dto";
+import { ErrorResponse } from "src/error-response";
 export const HasuraGroupToken = "HasuraGroup";
 @Injectable()
 export class HasuraGroupService implements IServicelocatorgroup {
@@ -57,14 +58,20 @@ export class HasuraGroupService implements IServicelocatorgroup {
     };
 
     const response = await axios(config);
-
-    let result = [response?.data?.data?.group_by_pk];
-    const groupResponse = await this.mappedResponse(result);
-    return new SuccessResponse({
-      statusCode: 200,
-      message: "Ok.",
-      data: groupResponse[0],
-    });
+    if (response?.data?.errors) {
+      return new ErrorResponse({
+        errorCode: response.data.errors[0].extensions,
+        errorMessage: response.data.errors[0].message,
+      });
+    } else {
+      let result = [response?.data?.data?.group_by_pk];
+      const groupResponse = await this.mappedResponse(result);
+      return new SuccessResponse({
+        statusCode: 200,
+        message: "Ok.",
+        data: groupResponse[0],
+      });
+    }
   }
 
   public async createGroup(request: any, groupDto: GroupDto) {
@@ -103,13 +110,20 @@ export class HasuraGroupService implements IServicelocatorgroup {
 
     const response = await axios(config);
 
-    const result = response.data.data.insert_group_one;
+    if (response?.data?.errors) {
+      return new ErrorResponse({
+        errorCode: response.data.errors[0].extensions,
+        errorMessage: response.data.errors[0].message,
+      });
+    } else {
+      const result = response.data.data.update_group;
 
-    return new SuccessResponse({
-      statusCode: 200,
-      message: "Ok.",
-      data: result,
-    });
+      return new SuccessResponse({
+        statusCode: response.status,
+        message: "Ok.",
+        data: result,
+      });
+    }
   }
 
   public async updateGroup(groupId: string, request: any, groupDto: GroupDto) {
@@ -149,13 +163,21 @@ export class HasuraGroupService implements IServicelocatorgroup {
     };
 
     const response = await axios(config);
-    const result = response.data.data;
 
-    return new SuccessResponse({
-      statusCode: 200,
-      message: "Ok.",
-      data: result,
-    });
+    if (response?.data?.errors) {
+      return new ErrorResponse({
+        errorCode: response.data.errors[0].extensions,
+        errorMessage: response.data.errors[0].message,
+      });
+    } else {
+      const result = response.data.data.update_group;
+
+      return new SuccessResponse({
+        statusCode: response.status,
+        message: "Ok.",
+        data: result,
+      });
+    }
   }
 
   public async searchGroup(request: any, groupSearchDto: GroupSearchDto) {
@@ -214,14 +236,21 @@ export class HasuraGroupService implements IServicelocatorgroup {
     };
 
     const response = await axios(config);
+    if (response?.data?.errors) {
+      return new ErrorResponse({
+        errorCode: response.data.errors[0].extensions,
+        errorMessage: response.data.errors[0].message,
+      });
+    } else {
+      let result = response.data.data.group;
+      const groupResponse = await this.mappedResponse(result);
 
-    let result = response.data.data.group;
-    const groupResponse = await this.mappedResponse(result);
-    return new SuccessResponse({
-      statusCode: 200,
-      message: "Ok.",
-      data: groupResponse,
-    });
+      return new SuccessResponse({
+        statusCode: response.status,
+        message: "Ok.",
+        data: groupResponse,
+      });
+    }
   }
 
   public async findMembersOfGroup(groupId: string, role: string, request: any) {
@@ -346,14 +375,20 @@ export class HasuraGroupService implements IServicelocatorgroup {
       data: findMember,
     };
     const response = await axios(getMemberData);
-
-    let groupData = [response.data.data.groupmembership[0].group];
-    const groupResponse = await this.mappedResponse(groupData);
-    return new SuccessResponse({
-      statusCode: 200,
-      message: "ok",
-      data: groupResponse,
-    });
+    if (response?.data?.errors) {
+      return new ErrorResponse({
+        errorCode: response.data.errors[0].extensions,
+        errorMessage: response.data.errors[0].message,
+      });
+    } else {
+      let groupData = [response.data.data.groupmembership[0].group];
+      const groupResponse = await this.mappedResponse(groupData);
+      return new SuccessResponse({
+        statusCode: 200,
+        message: "ok",
+        data: groupResponse,
+      });
+    }
   }
 
   public async findMembersOfChildGroup(

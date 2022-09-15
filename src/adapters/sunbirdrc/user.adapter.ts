@@ -71,23 +71,29 @@ export class UserService implements IServicelocator {
   }
 
   public async updateUser(id: string, request: any, teacherDto: UserDto) {
-    var axios = require("axios");
-    var data = teacherDto;
-
-    var config = {
-      method: "put",
-      url: `${this.url}/${id}`,
-      headers: {
-        Authorization: request.headers.authorization,
-      },
-      data: data,
-    };
-    const response = await axios(config);
-    return new SuccessResponse({
-      statusCode: 200,
-      message: "User updated Successfully",
-      data: response.data,
-    });
+    return this.httpService
+      .put(`${this.url}/${id}`, teacherDto, {
+        headers: {
+          Authorization: request.headers.authorization,
+        },
+      })
+      .pipe(
+        map((response) => {
+          const responsedata = response.data;
+          return new SuccessResponse({
+            statusCode: response.status,
+            message: "Ok",
+            data: responsedata,
+          });
+        }),
+        catchError((e) => {
+          var error = new ErrorResponse({
+            errorCode: e.response.status,
+            errorMessage: e.response.data.params.errmsg,
+          });
+          throw new HttpException(error, e.response.status);
+        })
+      );
   }
   public async searchUser(request: any, teacherSearchDto: UserSearchDto) {
     return this.httpService

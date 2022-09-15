@@ -2,6 +2,7 @@ import { Injectable } from "@nestjs/common";
 import { HttpService } from "@nestjs/axios";
 import { SuccessResponse } from "src/success-response";
 import { WorkHistoryDto } from "../../workHistory/dto/work-history.dto";
+import { ErrorResponse } from "src/error-response";
 
 @Injectable()
 export class WorkHistoryService {
@@ -40,13 +41,19 @@ export class WorkHistoryService {
 
     const response = await axios(config);
 
-    const result = response.data.data.insert_workhistory_one;
-
-    return new SuccessResponse({
-      statusCode: 200,
-      message: "Ok.",
-      data: result,
-    });
+    if (response?.data?.errors) {
+      return new ErrorResponse({
+        errorCode: response.data.errors[0].extensions,
+        errorMessage: response.data.errors[0].message,
+      });
+    } else {
+      const result = response.data.data.insert_workhistory_one;
+      return new SuccessResponse({
+        statusCode: response.status,
+        message: "Ok.",
+        data: result,
+      });
+    }
   }
 
   public async updateWorkHistory(
@@ -85,13 +92,20 @@ export class WorkHistoryService {
     };
 
     const response = await axios(config);
-    const result = response.data.data;
 
-    return new SuccessResponse({
-      statusCode: 200,
-      message: "Ok.",
-      data: result,
-    });
+    if (response?.data?.errors) {
+      return new ErrorResponse({
+        errorCode: response.data.errors[0].extensions,
+        errorMessage: response.data.errors[0].message,
+      });
+    } else {
+      const result = response.data.data;
+      return new SuccessResponse({
+        statusCode: response.status,
+        message: "Ok.",
+        data: result,
+      });
+    }
   }
 
   public async getWorkHistory(workHistoryId: any, request: any) {
@@ -134,12 +148,20 @@ export class WorkHistoryService {
     };
 
     const response = await axios(config);
-    let result = await this.mappedResponse(response?.data?.data?.workhistory);
-    return new SuccessResponse({
-      statusCode: 200,
-      message: "Ok.",
-      data: result,
-    });
+
+    if (response?.data?.errors) {
+      return new ErrorResponse({
+        errorCode: response.data.errors[0].extensions,
+        errorMessage: response.data.errors[0].message,
+      });
+    } else {
+      let result = await this.mappedResponse(response?.data?.data?.workhistory);
+      return new SuccessResponse({
+        statusCode: response.status,
+        message: "Ok.",
+        data: result,
+      });
+    }
   }
 
   public async searchWorkHistory(
@@ -211,12 +233,19 @@ export class WorkHistoryService {
 
     const response = await axios(config);
 
-    let result = await this.mappedResponse(response.data.data.workhistory);
-    return new SuccessResponse({
-      statusCode: 200,
-      message: "Ok.",
-      data: result,
-    });
+    if (response?.data?.errors) {
+      return new ErrorResponse({
+        errorCode: response.data.errors[0].extensions,
+        errorMessage: response.data.errors[0].message,
+      });
+    } else {
+      let result = await this.mappedResponse(response.data.data.workhistory);
+      return new SuccessResponse({
+        statusCode: response.status,
+        message: "Ok.",
+        data: result,
+      });
+    }
   }
 
   public async mappedResponse(result: any) {

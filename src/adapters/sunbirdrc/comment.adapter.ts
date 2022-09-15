@@ -97,7 +97,6 @@ export class SunbirdCommentService implements IServicelocator {
     commentDto: CommentDto
   ) {
     var axios = require("axios");
-    var data = commentDto;
     const authToken = request.headers.authorization;
     const decoded: any = jwt_decode(authToken);
     let email = decoded.email;
@@ -108,6 +107,7 @@ export class SunbirdCommentService implements IServicelocator {
         },
       },
     };
+
     let configData = {
       method: "post",
       url: `${this.userUrl}/search`,
@@ -120,20 +120,29 @@ export class SunbirdCommentService implements IServicelocator {
     const result = userResponse.data[0];
     commentDto.userId = result.osid;
 
-    var config = {
-      method: "put",
-      url: `${this.url}/${commentId}`,
-      headers: {
-        Authorization: request.headers.authorization,
-      },
-      data: data,
-    };
-    const response = await axios(config);
-    return new SuccessResponse({
-      statusCode: 200,
-      message: " Ok.",
-      data: response.data,
-    });
+    return this.httpService
+      .put(`${this.url}/${commentId}`, commentDto, {
+        headers: {
+          Authorization: request.headers.authorization,
+        },
+      })
+      .pipe(
+        map((response) => {
+          const responsedata = response.data;
+          return new SuccessResponse({
+            statusCode: response.status,
+            message: "Ok",
+            data: responsedata,
+          });
+        }),
+        catchError((e) => {
+          var error = new ErrorResponse({
+            errorCode: e.response.status,
+            errorMessage: e.response.data.params.errmsg,
+          });
+          throw new HttpException(error, e.response.status);
+        })
+      );
   }
 
   public async searchComment(request: any, commentSearchDto: CommentSearchDto) {
@@ -162,6 +171,7 @@ export class SunbirdCommentService implements IServicelocator {
         })
       );
   }
+
   public async mappedResponse(result: any) {
     const commentResponse = result.map((obj: any) => {
       const commentMapping = {

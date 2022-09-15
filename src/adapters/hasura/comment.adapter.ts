@@ -5,6 +5,7 @@ import { IServicelocator } from "../commentservicelocator";
 import { CommentDto } from "src/comment/dto/comment.dto";
 import { CommentSearchDto } from "src/comment/dto/comment-search.dto";
 import jwt_decode from "jwt-decode";
+import { ErrorResponse } from "src/error-response";
 export const HasuraCommentToken = "HasuraComment";
 @Injectable()
 export class HasuraCommentService implements IServicelocator {
@@ -71,14 +72,19 @@ export class HasuraCommentService implements IServicelocator {
     };
 
     const response = await axios(config);
-
-    const result = response.data.data.insert_comment_one;
-
-    return new SuccessResponse({
-      statusCode: 200,
-      message: "Ok.",
-      data: result,
-    });
+    if (response?.data?.errors) {
+      return new ErrorResponse({
+        errorCode: response.data.errors[0].extensions,
+        errorMessage: response.data.errors[0].message,
+      });
+    } else {
+      const result = response.data.data.insert_comment_one;
+      return new SuccessResponse({
+        statusCode: response.status,
+        message: "Ok.",
+        data: result,
+      });
+    }
   }
 
   public async updateComment(id: string, request: any, commentDto: CommentDto) {
@@ -141,13 +147,20 @@ export class HasuraCommentService implements IServicelocator {
     };
 
     const response = await axios(config);
-    const result = response.data.data;
 
-    return new SuccessResponse({
-      statusCode: 200,
-      message: "Ok.",
-      data: result,
-    });
+    if (response?.data?.errors) {
+      return new ErrorResponse({
+        errorCode: response.data.errors[0].extensions,
+        errorMessage: response.data.errors[0].message,
+      });
+    } else {
+      const result = response.data.data;
+      return new SuccessResponse({
+        statusCode: response.status,
+        message: "Ok.",
+        data: result,
+      });
+    }
   }
 
   public async getComment(commentId: any, request: any) {
@@ -183,15 +196,21 @@ export class HasuraCommentService implements IServicelocator {
     };
 
     const response = await axios(config);
-
-    const result = await this.mappedResponse([
-      response.data.data.comment_by_pk,
-    ]);
-    return new SuccessResponse({
-      statusCode: 200,
-      message: "Ok.",
-      data: result[0],
-    });
+    if (response?.data?.errors) {
+      return new ErrorResponse({
+        errorCode: response.data.errors[0].extensions,
+        errorMessage: response.data.errors[0].message,
+      });
+    } else {
+      const result = await this.mappedResponse([
+        response.data.data.comment_by_pk,
+      ]);
+      return new SuccessResponse({
+        statusCode: response.status,
+        message: "Ok.",
+        data: result,
+      });
+    }
   }
 
   public async searchComment(request: any, commentSearchDto: CommentSearchDto) {
@@ -244,13 +263,19 @@ export class HasuraCommentService implements IServicelocator {
     };
 
     const response = await axios(config);
-    const result = await this.mappedResponse(response.data.data.comment);
-
-    return new SuccessResponse({
-      statusCode: 200,
-      message: "Ok.",
-      data: result,
-    });
+    if (response?.data?.errors) {
+      return new ErrorResponse({
+        errorCode: response.data.errors[0].extensions,
+        errorMessage: response.data.errors[0].message,
+      });
+    } else {
+      const result = await this.mappedResponse(response.data.data.comment);
+      return new SuccessResponse({
+        statusCode: response.status,
+        message: "Ok.",
+        data: result,
+      });
+    }
   }
 
   public async mappedResponse(result: any) {

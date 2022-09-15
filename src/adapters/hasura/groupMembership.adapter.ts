@@ -4,6 +4,7 @@ import { SuccessResponse } from "src/success-response";
 const resolvePath = require("object-resolve-path");
 import { GroupMembershipDto } from "src/groupMembership/dto/groupMembership.dto";
 import { GroupMembershipSearchDto } from "src/groupMembership/dto/groupMembership-search.dto";
+import { ErrorResponse } from "src/error-response";
 
 @Injectable()
 export class GroupMembershipService {
@@ -42,14 +43,21 @@ export class GroupMembershipService {
     };
 
     const response = await axios(config);
+    if (response?.data?.errors) {
+      return new ErrorResponse({
+        errorCode: response.data.errors[0].extensions,
+        errorMessage: response.data.errors[0].message,
+      });
+    } else {
+      let result = [response?.data?.data?.groupmembership_by_pk];
+      let groupMembershipResponse = await this.mappedResponse(result);
 
-    let result = [response?.data?.data?.groupmembership_by_pk];
-    let groupMembershipResponse = await this.mappedResponse(result);
-    return new SuccessResponse({
-      statusCode: 200,
-      message: "Ok.",
-      data: groupMembershipResponse[0],
-    });
+      return new SuccessResponse({
+        statusCode: response.status,
+        message: "Ok.",
+        data: groupMembershipResponse[0],
+      });
+    }
   }
 
   public async createGroupMembership(
@@ -91,13 +99,20 @@ export class GroupMembershipService {
 
     const response = await axios(config);
 
-    const result = response.data.data.insert_groupmembership_one;
+    if (response?.data?.errors) {
+      return new ErrorResponse({
+        errorCode: response.data.errors[0].extensions,
+        errorMessage: response.data.errors[0].message,
+      });
+    } else {
+      const result = response.data.data.insert_groupmembership_one;
 
-    return new SuccessResponse({
-      statusCode: 200,
-      message: "Ok.",
-      data: result,
-    });
+      return new SuccessResponse({
+        statusCode: response.status,
+        message: "Ok.",
+        data: result,
+      });
+    }
   }
 
   public async updateGroupMembership(
@@ -140,14 +155,20 @@ export class GroupMembershipService {
     };
 
     const response = await axios(config);
+    if (response?.data?.errors) {
+      return new ErrorResponse({
+        errorCode: response.data.errors[0].extensions,
+        errorMessage: response.data.errors[0].message,
+      });
+    } else {
+      const result = response.data.data;
 
-    const result = response.data.data;
-
-    return new SuccessResponse({
-      statusCode: 200,
-      message: "Ok.",
-      data: result,
-    });
+      return new SuccessResponse({
+        statusCode: response.status,
+        message: "Ok.",
+        data: result,
+      });
+    }
   }
 
   public async searchGroupMembership(
@@ -202,14 +223,20 @@ export class GroupMembershipService {
     };
 
     const response = await axios(config);
-
-    let result = response.data.data.groupmembership;
-    let groupMembershipResponse = await this.mappedResponse(result);
-    return new SuccessResponse({
-      statusCode: 200,
-      message: "Ok.",
-      data: groupMembershipResponse,
-    });
+    if (response?.data?.errors) {
+      return new ErrorResponse({
+        errorCode: response.data.errors[0].extensions,
+        errorMessage: response.data.errors[0].message,
+      });
+    } else {
+      let result = response.data.data.groupmembership;
+      let groupMembershipResponse = await this.mappedResponse(result);
+      return new SuccessResponse({
+        statusCode: response.status,
+        message: "Ok.",
+        data: groupMembershipResponse,
+      });
+    }
   }
 
   public async mappedResponse(result: any) {

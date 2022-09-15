@@ -175,7 +175,6 @@ export class SunbirdConfigService implements IServicelocator {
         data["isPublic"] = data["isPublic"] ? data["isPublic"] : true;
         data["canOverride"] = data["canOverride"] ? data["canOverride"] : true;
         data["overrideBy"] = data["overrideBy"] ? data["overrideBy"] : "";
-
         this.createConfig(request, data);
       });
     });

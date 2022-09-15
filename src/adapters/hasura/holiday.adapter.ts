@@ -5,6 +5,7 @@ import { SuccessResponse } from "src/success-response";
 import { IServicelocator } from "../holidayservicelocator";
 import { HolidayDto } from "src/holiday/dto/holiday.dto";
 import { HolidaySearchDto } from "src/holiday/dto/holiday-search.dto";
+import { ErrorResponse } from "src/error-response";
 export const HasuraHolidayToken = "HasuraHoliday";
 @Injectable()
 export class HasuraHolidayService implements IServicelocator {
@@ -51,13 +52,20 @@ export class HasuraHolidayService implements IServicelocator {
 
     const response = await axios(config);
 
-    const result = response.data.data.insert_holiday_one;
+    if (response?.data?.errors) {
+      return new ErrorResponse({
+        errorCode: response.data.errors[0].extensions,
+        errorMessage: response.data.errors[0].message,
+      });
+    } else {
+      const result = response.data.data.insert_holiday_one;
 
-    return new SuccessResponse({
-      statusCode: 200,
-      message: "Ok.",
-      data: result,
-    });
+      return new SuccessResponse({
+        statusCode: response.status,
+        message: "Ok.",
+        data: result,
+      });
+    }
   }
 
   public async updateHoliday(id: string, request: any, holidayDto: HolidayDto) {
@@ -100,13 +108,21 @@ export class HasuraHolidayService implements IServicelocator {
     };
 
     const response = await axios(config);
-    const result = response.data.data;
 
-    return new SuccessResponse({
-      statusCode: 200,
-      message: "Ok.",
-      data: result,
-    });
+    if (response?.data?.errors) {
+      return new ErrorResponse({
+        errorCode: response.data.errors[0].extensions,
+        errorMessage: response.data.errors[0].message,
+      });
+    } else {
+      const result = response.data.data;
+
+      return new SuccessResponse({
+        statusCode: response.status,
+        message: "Ok.",
+        data: result,
+      });
+    }
   }
 
   public async getHoliday(holidayId: any, request: any) {
@@ -141,13 +157,21 @@ export class HasuraHolidayService implements IServicelocator {
 
     const response = await axios(config);
 
-    let result = [response.data.data.holiday_by_pk];
-    const holidayData = await this.mappedResponse(result);
-    return new SuccessResponse({
-      statusCode: 200,
-      message: "Ok.",
-      data: holidayData[0],
-    });
+    if (response?.data?.errors) {
+      return new ErrorResponse({
+        errorCode: response.data.errors[0].extensions,
+        errorMessage: response.data.errors[0].message,
+      });
+    } else {
+      let result = [response.data.data.holiday_by_pk];
+      const holidayData = await this.mappedResponse(result);
+
+      return new SuccessResponse({
+        statusCode: response.status,
+        message: "Ok.",
+        data: holidayData,
+      });
+    }
   }
 
   public async searchHoliday(request: any, holidaySearchDto: HolidaySearchDto) {
@@ -199,13 +223,21 @@ export class HasuraHolidayService implements IServicelocator {
 
     const response = await axios(config);
 
-    let result = response.data.data.holiday;
-    const holidayData = await this.mappedResponse(result);
-    return new SuccessResponse({
-      statusCode: 200,
-      message: "Ok.",
-      data: holidayData,
-    });
+    if (response?.data?.errors) {
+      return new ErrorResponse({
+        errorCode: response.data.errors[0].extensions,
+        errorMessage: response.data.errors[0].message,
+      });
+    } else {
+      let result = response.data.data.holiday;
+      const holidayData = await this.mappedResponse(result);
+
+      return new SuccessResponse({
+        statusCode: response.status,
+        message: "Ok.",
+        data: holidayData,
+      });
+    }
   }
 
   public async holidayFilter(fromDate: string, toDate: string, request: any) {
@@ -246,13 +278,21 @@ export class HasuraHolidayService implements IServicelocator {
 
     const response = await axios(config);
 
-    let result = response.data.data.holiday;
-    const holidayData = await this.mappedResponse(result);
-    return new SuccessResponse({
-      statusCode: 200,
-      message: "Ok.",
-      data: holidayData,
-    });
+    if (response?.data?.errors) {
+      return new ErrorResponse({
+        errorCode: response.data.errors[0].extensions,
+        errorMessage: response.data.errors[0].message,
+      });
+    } else {
+      let result = response.data.data.holiday;
+      const holidayData = await this.mappedResponse(result);
+
+      return new SuccessResponse({
+        statusCode: response.status,
+        message: "Ok.",
+        data: holidayData,
+      });
+    }
   }
 
   public async mappedResponse(result: any) {

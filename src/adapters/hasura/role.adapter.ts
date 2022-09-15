@@ -2,6 +2,7 @@ import { HttpService } from "@nestjs/axios";
 import { Injectable } from "@nestjs/common";
 import { SuccessResponse } from "src/success-response";
 import { RoleDto } from "src/role/dto/role.dto";
+import { ErrorResponse } from "src/error-response";
 @Injectable()
 export class RoleService {
   constructor(private httpService: HttpService) {}
@@ -34,13 +35,20 @@ export class RoleService {
 
     const response = await axios(config);
 
-    let result = response.data.data.role;
-    const roleData = await this.mappedResponse(result);
-    return new SuccessResponse({
-      statusCode: 200,
-      message: "Ok.",
-      data: roleData,
-    });
+    if (response?.data?.errors) {
+      return new ErrorResponse({
+        errorCode: response.data.errors[0].extensions,
+        errorMessage: response.data.errors[0].message,
+      });
+    } else {
+      let result = response.data.data.role;
+      const roleData = await this.mappedResponse(result);
+      return new SuccessResponse({
+        statusCode: response.status,
+        message: "Ok.",
+        data: roleData,
+      });
+    }
   }
 
   public async createRole(request: any, roleDto: RoleDto) {
@@ -70,12 +78,19 @@ export class RoleService {
 
     const response = await axios(config);
 
-    const result = response.data.data.insert_role_one;
-    return new SuccessResponse({
-      statusCode: 200,
-      message: "Ok.",
-      data: result,
-    });
+    if (response?.data?.errors) {
+      return new ErrorResponse({
+        errorCode: response.data.errors[0].extensions,
+        errorMessage: response.data.errors[0].message,
+      });
+    } else {
+      const result = response.data.data.insert_role_one;
+      return new SuccessResponse({
+        statusCode: response.status,
+        message: "Ok.",
+        data: result,
+      });
+    }
   }
 
   public async updateRole(roleId: string, request: any, roleDto: RoleDto) {
@@ -116,12 +131,20 @@ export class RoleService {
     };
 
     const response = await axios(config);
-    const result = response.data.data;
-    return new SuccessResponse({
-      statusCode: 200,
-      message: "Ok.",
-      data: result,
-    });
+
+    if (response?.data?.errors) {
+      return new ErrorResponse({
+        errorCode: response.data.errors[0].extensions,
+        errorMessage: response.data.errors[0].message,
+      });
+    } else {
+      const result = response.data.data;
+      return new SuccessResponse({
+        statusCode: response.status,
+        message: "Ok.",
+        data: result,
+      });
+    }
   }
 
   public async searchRole(
@@ -175,13 +198,20 @@ export class RoleService {
 
     const response = await axios(config);
 
-    let result = response.data.data.role;
-    const roleData = await this.mappedResponse(result);
-    return new SuccessResponse({
-      statusCode: 200,
-      message: "Ok.",
-      data: roleData,
-    });
+    if (response?.data?.errors) {
+      return new ErrorResponse({
+        errorCode: response.data.errors[0].extensions,
+        errorMessage: response.data.errors[0].message,
+      });
+    } else {
+      let result = response.data.data.role;
+      const roleData = await this.mappedResponse(result);
+      return new SuccessResponse({
+        statusCode: response.status,
+        message: "Ok.",
+        data: roleData,
+      });
+    }
   }
   public async mappedResponse(result: any) {
     const roleResponse = result.map((item: any) => {

@@ -71,23 +71,29 @@ export class StudentService implements IServicelocator {
   }
 
   public async updateStudent(id: string, request: any, studentDto: StudentDto) {
-    var axios = require("axios");
-    var data = studentDto;
-
-    var config = {
-      method: "put",
-      url: `${this.url}/${id}`,
-      headers: {
-        Authorization: request.headers.authorization,
-      },
-      data: data,
-    };
-    const response = await axios(config);
-    return new SuccessResponse({
-      statusCode: 200,
-      message: " Ok.",
-      data: response.data,
-    });
+    return this.httpService
+      .put(`${this.url}/${id}`, studentDto, {
+        headers: {
+          Authorization: request.headers.authorization,
+        },
+      })
+      .pipe(
+        map((response) => {
+          const responsedata = response.data;
+          return new SuccessResponse({
+            statusCode: response.status,
+            message: "Ok",
+            data: responsedata,
+          });
+        }),
+        catchError((e) => {
+          var error = new ErrorResponse({
+            errorCode: e.response.status,
+            errorMessage: e.response.data.params.errmsg,
+          });
+          throw new HttpException(error, e.response.status);
+        })
+      );
   }
 
   public async searchStudent(request: any, studentSearchDto: StudentSearchDto) {
@@ -116,6 +122,7 @@ export class StudentService implements IServicelocator {
         })
       );
   }
+
   public async mappedResponse(result: any) {
     const studentResponse = result.map((item: any) => {
       const studentMapping = {

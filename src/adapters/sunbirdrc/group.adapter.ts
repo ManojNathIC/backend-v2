@@ -280,6 +280,7 @@ export class SunbirdGroupService implements IServicelocatorgroup {
 
     return groupResponse;
   }
+
   public async StudentMappedResponse(result: any) {
     const studentResponse = result.map((item: any) => {
       const studentMapping = {

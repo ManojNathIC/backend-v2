@@ -2,6 +2,7 @@ import { Injectable } from "@nestjs/common";
 import { HttpService } from "@nestjs/axios";
 import { SuccessResponse } from "src/success-response";
 import { CourseTrackingDto } from "src/courseTracking/dto/courseTracking.dto";
+import { ErrorResponse } from "src/error-response";
 
 @Injectable()
 export class CourseTrackingService {
@@ -43,14 +44,20 @@ export class CourseTrackingService {
     };
 
     const response = await axios(config);
+    if (response?.data?.errors) {
+      return new ErrorResponse({
+        errorCode: response.data.errors[0].extensions,
+        errorMessage: response.data.errors[0].message,
+      });
+    } else {
+      let result = await this.mappedResponse(response.data.data.coursetracking);
 
-    let result = await this.mappedResponse(response.data.data.coursetracking);
-
-    return new SuccessResponse({
-      statusCode: 200,
-      message: "Ok.",
-      data: result,
-    });
+      return new SuccessResponse({
+        statusCode: response.status,
+        message: "Ok.",
+        data: result,
+      });
+    }
   }
   public async createCourseTracking(
     request: any,
@@ -95,12 +102,19 @@ export class CourseTrackingService {
     };
 
     const response = await axios(config);
-
-    return new SuccessResponse({
-      statusCode: 200,
-      message: "Ok.",
-      data: response.data,
-    });
+    if (response?.data?.errors) {
+      return new ErrorResponse({
+        errorCode: response.data.errors[0].extensions,
+        errorMessage: response.data.errors[0].message,
+      });
+    } else {
+      let result = response.datas;
+      return new SuccessResponse({
+        statusCode: response.status,
+        message: "Ok.",
+        data: result,
+      });
+    }
   }
 
   public async updateCourseTracking(
@@ -163,12 +177,19 @@ export class CourseTrackingService {
     };
 
     const response = await axios(config);
-
-    return new SuccessResponse({
-      statusCode: 200,
-      message: "Ok.",
-      data: response.data,
-    });
+    if (response?.data?.errors) {
+      return new ErrorResponse({
+        errorCode: response.data.errors[0].extensions,
+        errorMessage: response.data.errors[0].message,
+      });
+    } else {
+      let result = response.datas;
+      return new SuccessResponse({
+        statusCode: response.status,
+        message: "Ok.",
+        data: result,
+      });
+    }
   }
 
   public async searchCourseTracking(
@@ -236,17 +257,24 @@ export class CourseTrackingService {
     };
 
     const response = await axios(config);
-    let result = [];
 
-    if (response?.data?.data?.coursetracking) {
-      result = await this.mappedResponse(response.data.data.coursetracking);
+    if (response?.data?.errors) {
+      return new ErrorResponse({
+        errorCode: response.data.errors[0].extensions,
+        errorMessage: response.data.errors[0].message,
+      });
+    } else {
+      let result = [];
+
+      if (response?.data?.data?.coursetracking) {
+        result = await this.mappedResponse(response.data.data.coursetracking);
+      }
+      return new SuccessResponse({
+        statusCode: response.status,
+        message: "Ok.",
+        data: result,
+      });
     }
-
-    return new SuccessResponse({
-      statusCode: 200,
-      message: "Ok.",
-      data: result,
-    });
   }
 
   public async mappedResponse(result: any) {

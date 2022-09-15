@@ -3,6 +3,7 @@ import { HttpService } from "@nestjs/axios";
 import { SuccessResponse } from "src/success-response";
 import { WorksheetDto } from "src/worksheet/dto/worksheet.dto";
 import { WorksheetSearchDto } from "src/worksheet/dto/worksheet-search.dto";
+import { ErrorResponse } from "src/error-response";
 
 @Injectable()
 export class WorksheetService {
@@ -50,13 +51,19 @@ export class WorksheetService {
 
     const response = await axios(config);
 
-    const result = response.data.data.insert_worksheet_one;
-
-    return new SuccessResponse({
-      statusCode: 200,
-      message: "Ok.",
-      data: result,
-    });
+    if (response?.data?.errors) {
+      return new ErrorResponse({
+        errorCode: response.data.errors[0].extensions,
+        errorMessage: response.data.errors[0].message,
+      });
+    } else {
+      const result = response.data.data.insert_worksheet_one;
+      return new SuccessResponse({
+        statusCode: response.status,
+        message: "Ok.",
+        data: result,
+      });
+    }
   }
 
   public async updateWorksheet(
@@ -103,13 +110,21 @@ export class WorksheetService {
     };
 
     const response = await axios(config);
-    const result = response.data.data;
 
-    return new SuccessResponse({
-      statusCode: 200,
-      message: "Ok.",
-      data: result,
-    });
+    if (response?.data?.errors) {
+      return new ErrorResponse({
+        errorCode: response.data.errors[0].extensions,
+        errorMessage: response.data.errors[0].message,
+      });
+    } else {
+      const result = response.data.data;
+
+      return new SuccessResponse({
+        statusCode: response.status,
+        message: "Ok.",
+        data: result,
+      });
+    }
   }
 
   public async getWorksheet(worksheetId: any, request: any) {
@@ -161,13 +176,21 @@ export class WorksheetService {
     };
 
     const response = await axios(config);
-    let result = [response.data.data.worksheet_by_pk];
-    const worksheetResponse = await this.mappedResponse(result);
-    return new SuccessResponse({
-      statusCode: 200,
-      message: "Ok.",
-      data: worksheetResponse[0],
-    });
+
+    if (response?.data?.errors) {
+      return new ErrorResponse({
+        errorCode: response.data.errors[0].extensions,
+        errorMessage: response.data.errors[0].message,
+      });
+    } else {
+      let result = [response.data.data.worksheet_by_pk];
+      const worksheetResponse = await this.mappedResponse(result);
+      return new SuccessResponse({
+        statusCode: response.status,
+        message: "Ok.",
+        data: worksheetResponse[0],
+      });
+    }
   }
 
   public async searchWorksheet(
@@ -242,13 +265,20 @@ export class WorksheetService {
 
     const response = await axios(config);
 
-    let result = response.data.data.worksheet;
-    const worksheetResponse = await this.mappedResponse(result);
-    return new SuccessResponse({
-      statusCode: 200,
-      message: "Ok.",
-      data: worksheetResponse,
-    });
+    if (response?.data?.errors) {
+      return new ErrorResponse({
+        errorCode: response.data.errors[0].extensions,
+        errorMessage: response.data.errors[0].message,
+      });
+    } else {
+      let result = response.data.data.worksheet;
+      const worksheetResponse = await this.mappedResponse(result);
+      return new SuccessResponse({
+        statusCode: response.status,
+        message: "Ok.",
+        data: worksheetResponse,
+      });
+    }
   }
 
   public async downloadWorksheet(
