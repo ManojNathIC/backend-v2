@@ -233,6 +233,11 @@ export class HasuraCommentService implements IServicelocator {
     });
     var data = {
       query: `query SearchComment($filters:comment_bool_exp,$limit:Int, $offset:Int) {
+        comment_aggregate {
+          aggregate {
+            count
+          }
+        }
           comment(where:$filters, limit: $limit, offset: $offset,) {
             comment
             commentId
@@ -281,6 +286,7 @@ export class HasuraCommentService implements IServicelocator {
   public async mappedResponse(result: any) {
     const commentResponse = result.map((obj: any) => {
       const commentMapping = {
+        id: obj?.commentId ? `${obj.commentId}` : "",
         commentId: obj?.commentId ? `${obj.commentId}` : "",
         contextId: obj?.contextId ? `${obj.contextId}` : "",
         context: obj?.context ? `${obj.context}` : "",

@@ -224,6 +224,11 @@ export class CourseTrackingService {
 
     var data = {
       query: `query searchCourseTracking($offset:Int,$limit:Int) {
+        coursetracking_aggregate {
+          aggregate {
+            count
+          }
+        }
   coursetracking(limit: $limit, offset: $offset, where: {${query}}) {
     contentIds
     certificate
@@ -280,6 +285,7 @@ export class CourseTrackingService {
   public async mappedResponse(result: any) {
     const courseResponse = result.map((obj: any) => {
       const courseMapping = {
+        id: obj?.courseTrackingId ? `${obj.courseTrackingId}` : "",
         courseTrackingId: obj?.courseTrackingId
           ? `${obj.courseTrackingId}`
           : "",

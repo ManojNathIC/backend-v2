@@ -237,6 +237,11 @@ export class QuestionService implements IServicelocator {
 
     var data = {
       query: `query SearchQuestion($limit:Int, $offset:Int) {
+        question_aggregate {
+          aggregate {
+            count
+          }
+        }
             question(where:{ ${query}}, limit: $limit, offset: $offset,) {
               answer
               avgRating
@@ -392,7 +397,10 @@ export class QuestionService implements IServicelocator {
   public async mappedResponse(result: any) {
     const questionResponse = result.map((item: any) => {
       const questionMapping = {
+        id: item?.examQuestionId,
+
         examQuestionId: item?.examQuestionId,
+
         body: item?.body,
 
         instructions: item?.instructions,

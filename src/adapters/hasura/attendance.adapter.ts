@@ -1,17 +1,14 @@
-import { Injectable, HttpException } from "@nestjs/common";
+import { Injectable } from "@nestjs/common";
 import { HttpService } from "@nestjs/axios";
-import { AxiosResponse } from "axios";
-import { map } from "rxjs";
 import { AttendanceDto } from "src/attendance/dto/attendance.dto";
 import { SuccessResponse } from "src/success-response";
-import { ErrorResponse } from "src/error-response";
-import { catchError } from "rxjs/operators";
 import { AttendanceSearchDto } from "src/attendance/dto/attendance-search.dto";
 import { SegmentDto } from "src/common-dto/userSegment.dto";
 import moment from "moment";
 
 import { IServicelocator } from "../attendanceservicelocator";
 import { StudentDto } from "src/student/dto/student.dto";
+import { ErrorResponse } from "src/error-response";
 export const ShikshaAttendanceToken = "ShikshaAttendance";
 
 @Injectable()
@@ -157,6 +154,11 @@ export class AttendanceHasuraService implements IServicelocator {
 
     var data = {
       query: `query SearchAttendance($limit:Int, $offset:Int) {
+        attendance_aggregate {
+          aggregate {
+            count
+          }
+        }
             attendance(where:{ ${query}}, limit: $limit, offset: $offset,) {
               attendance
               attendanceDate
@@ -451,6 +453,11 @@ export class AttendanceHasuraService implements IServicelocator {
 
     var FilterData = {
       query: `query AttendanceFilter($fromDate:date,$toDate:date) {
+        attendance_aggregate {
+          aggregate {
+            count
+          }
+        }
             attendance(where:{  attendanceDate: {_gte: $fromDate}, _and: {attendanceDate: {_lte: $toDate}} ${query}}) {
               attendance
               attendanceDate
@@ -918,6 +925,7 @@ export class AttendanceHasuraService implements IServicelocator {
   public async mappedResponse(result: any) {
     const attendanceResponse = result.map((item: any) => {
       const attendanceMapping = {
+        id: item?.attendanceId ? `${item.attendanceId}` : "",
         attendanceId: item?.attendanceId ? `${item.attendanceId}` : "",
         schoolId: item?.schoolId ? `${item.schoolId}` : "",
         userType: item?.userType ? `${item.userType}` : "",

@@ -196,6 +196,11 @@ export class GroupMembershipService {
     });
     var data = {
       query: `query SearchGroupMembership($filters:groupmembership_bool_exp,$limit:Int, $offset:Int) {
+       groupmembership_aggregate {
+          aggregate {
+            count
+          }
+        }
            groupmembership(where:$filters, limit: $limit, offset: $offset,) {
             created_at
             groupId
@@ -242,6 +247,7 @@ export class GroupMembershipService {
   public async mappedResponse(result: any) {
     const groupMembershipResponse = result.map((obj: any) => {
       const groupMembershipMapping = {
+        id: obj?.groupMembershipId ? `${obj.groupMembershipId}` : "",
         groupMembershipId: obj?.groupMembershipId
           ? `${obj.groupMembershipId}`
           : "",

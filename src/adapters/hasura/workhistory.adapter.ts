@@ -196,6 +196,11 @@ export class WorkHistoryService {
 
     var data = {
       query: `query SearchWorkHistory($limit:Int, $offset:Int) {
+        workhistory_aggregate {
+          aggregate {
+            count
+          }
+        }
             workhistory(where:{ ${query}}, limit: $limit, offset: $offset,) {
               workHistoryId
               cadre
@@ -251,6 +256,7 @@ export class WorkHistoryService {
   public async mappedResponse(result: any) {
     const workHistoryResponse = result.map((obj: any) => {
       const workHistoryMapping = {
+        id: obj?.workHistoryId ? `${obj.workHistoryId}` : "",
         workHistoryId: obj?.workHistoryId ? `${obj.workHistoryId}` : "",
         userId: obj?.userId ? `${obj.userId}` : "",
         role: obj?.role ? `${obj.role}` : "",

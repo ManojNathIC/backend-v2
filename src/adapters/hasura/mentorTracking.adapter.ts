@@ -109,10 +109,74 @@ export class MentorTrackingService {
     request: any,
     mentorTrackingDto: MentorTrackingDto
   ) {
+    const mentorSchema = new MentorTrackingDto(mentorTrackingDto);
     let query = "";
     Object.keys(mentorTrackingDto).forEach((e) => {
-      if (mentorTrackingDto[e] && mentorTrackingDto[e] != "") {
-        query += `${e}:"${mentorTrackingDto[e]}" `;
+      if (
+        mentorTrackingDto[e] &&
+        mentorTrackingDto[e] != "" &&
+        Object.keys(mentorSchema).includes(e)
+      ) {
+        if (Array.isArray(mentorTrackingDto[e])) {
+          query += `${e}: ${JSON.stringify(mentorTrackingDto[e])}, `;
+        } else {
+          query += `${e}: "${mentorTrackingDto[e]}", `;
+        }
+      }
+    });
+
+    var axios = require("axios");
+    var data = {
+      query: `mutation updateMentorTracking($mentorTrackingId: uuid) {
+  update_mentortracking(where: {mentorTrackingId: {_eq: $mentorTrackingId}}, _set: {${query}}) {
+    affected_rows
+  }
+}`,
+      variables: {
+        mentorTrackingId: mentorTrackingId,
+      },
+    };
+
+    var config = {
+      method: "post",
+      url: process.env.REGISTRYHASURA,
+      headers: {
+        "x-hasura-admin-secret": process.env.REGISTRYHASURAADMINSECRET,
+        "Content-Type": "application/json",
+      },
+      data: data,
+    };
+
+    const response = await axios(config);
+    const result = response.data.data;
+    return new SuccessResponse({
+      statusCode: 200,
+      message: "Ok.",
+      data: result,
+    });
+  }
+
+  public async feedback(
+    mentorTrackingId: string,
+    request: any,
+    feedback: string
+  ) {
+    let mentorTrackingDto = {
+      feedback: feedback,
+    };
+    const mentorSchema = new MentorTrackingDto(mentorTrackingDto);
+    let query = "";
+    Object.keys(mentorTrackingDto).forEach((e) => {
+      if (
+        mentorTrackingDto[e] &&
+        mentorTrackingDto[e] != "" &&
+        Object.keys(mentorSchema).includes(e)
+      ) {
+        if (Array.isArray(mentorTrackingDto[e])) {
+          query += `${e}: ${JSON.stringify(mentorTrackingDto[e])}, `;
+        } else {
+          query += `${e}: ${JSON.stringify(mentorTrackingDto[e])}, `;
+        }
       }
     });
 
@@ -164,6 +228,7 @@ export class MentorTrackingService {
     scheduleVisitDate: Date,
     visitDate: Date,
     page: number,
+    status: string,
     request: any
   ) {
     var axios = require("axios");
@@ -175,6 +240,7 @@ export class MentorTrackingService {
       schoolId,
       scheduleVisitDate,
       visitDate,
+      status,
     };
     let offset = 0;
 
@@ -191,6 +257,11 @@ export class MentorTrackingService {
 
     var data = {
       query: `query searchMentorTracking($offset:Int,$limit:Int) {
+        mentortracking_aggregate {
+          aggregate {
+            count
+          }
+        }
   mentortracking(limit: $limit, offset: $offset, where: {${query}}) {
     mentorTrackingId
     created_at
@@ -241,6 +312,7 @@ export class MentorTrackingService {
   public async mappedResponse(result: any) {
     const mentorResponse = result.map((obj: any) => {
       const mentorMapping = {
+        id: obj?.mentorTrackingId ? `${obj.mentorTrackingId}` : "",
         mentorTrackingId: obj?.mentorTrackingId
           ? `${obj.mentorTrackingId}`
           : "",

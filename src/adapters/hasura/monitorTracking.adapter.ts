@@ -192,6 +192,11 @@ export class MonitorTrackingService {
 
     var data = {
       query: `query SearchMonitorTracking($offset:Int,$limit:Int) {
+            monitortracking_aggregate {
+              aggregate {
+                count
+              }
+            }
             monitortracking(where:{ ${query}}, offset: $offset,limit: $limit) {
               created_at
               feedback
@@ -241,6 +246,7 @@ export class MonitorTrackingService {
   public async mappedResponse(result: any) {
     const monitorResponse = result.map((obj: any) => {
       const monitorMapping = {
+        id: obj?.monitorTrackingId ? `${obj.monitorTrackingId}` : "",
         monitorTrackingId: obj?.monitorTrackingId
           ? `${obj.monitorTrackingId}`
           : "",

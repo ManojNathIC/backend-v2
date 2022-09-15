@@ -233,6 +233,11 @@ export class HasuraLikeService implements IServicelocator {
     });
     var data = {
       query: `query SearchLike($filters:like_bool_exp,$limit:Int, $offset:Int) {
+        like_aggregate {
+          aggregate {
+            count
+          }
+        }
           like(where:$filters, limit: $limit, offset: $offset,) {
             userId
             updated_at
@@ -366,6 +371,7 @@ export class HasuraLikeService implements IServicelocator {
   public async mappedResponse(result: any) {
     const likeResponse = result.map((obj: any) => {
       const likeMapping = {
+        id: obj?.likeId ? `${obj.likeId}` : "",
         likeId: obj?.likeId ? `${obj.likeId}` : "",
         contextId: obj?.contextId ? `${obj.contextId}` : "",
         context: obj?.context ? `${obj.context}` : "",

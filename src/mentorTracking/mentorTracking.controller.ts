@@ -80,6 +80,22 @@ export class MentorTrackingController {
     );
   }
 
+  @Put("feedback/:id")
+  @ApiBasicAuth("access-token")
+  @ApiCreatedResponse({
+    description: "Mentor Tracking has been updated successfully.",
+  })
+  @ApiForbiddenResponse({ description: "Forbidden" })
+  @UseInterceptors(ClassSerializerInterceptor)
+  @ApiQuery({ name: "feedback", required: true })
+  public async feedback(
+    @Param("id") mentorTrackingId: string,
+    @Req() request: Request,
+    @Query("feedback") feedback: string
+  ) {
+    return await this.service.feedback(mentorTrackingId, request, feedback);
+  }
+
   @Post("/search")
   @UseInterceptors(ClassSerializerInterceptor)
   @ApiBasicAuth("access-token")
@@ -93,6 +109,7 @@ export class MentorTrackingController {
   @ApiQuery({ name: "scheduleVisitDate", required: false })
   @ApiQuery({ name: "visitDate", required: false })
   @ApiQuery({ name: "page", required: false })
+  @ApiQuery({ name: "status", required: false })
   public async searchMentorTracking(
     @Query("limit") limit: string,
     @Query("mentorTrackingId") mentorTrackingId: string,
@@ -102,6 +119,7 @@ export class MentorTrackingController {
     @Query("scheduleVisitDate") scheduleVisitDate: Date,
     @Query("visitDate") visitDate: Date,
     @Query("page") page: number,
+    @Query("status") status: string,
     @Req() request: Request
   ) {
     return this.service.searchMentorTracking(
@@ -113,6 +131,7 @@ export class MentorTrackingController {
       scheduleVisitDate,
       visitDate,
       page,
+      status,
       request
     );
   }

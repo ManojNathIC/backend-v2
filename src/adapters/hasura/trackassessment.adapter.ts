@@ -238,6 +238,11 @@ export class TrackAssessmentService {
 
     var data = {
       query: `query searchTrackAssessment($offset:Int,$limit:Int) {
+        trackassessment_aggregate {
+          aggregate {
+            count
+          }
+        }
   trackassessment(limit: $limit, offset: $offset, where: {${query}}) {
         answersheet
         filter
@@ -295,6 +300,7 @@ export class TrackAssessmentService {
   public async mappedResponse(result: any) {
     const trackAssessmentResponse = result.map((obj: any) => {
       const trackAssessmentMapping = {
+        id: obj?.trackAssessmentId ? `${obj.trackAssessmentId}` : "",
         trackAssessmentId: obj?.trackAssessmentId
           ? `${obj.trackAssessmentId}`
           : "",
